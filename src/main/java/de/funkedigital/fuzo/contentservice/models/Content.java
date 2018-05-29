@@ -9,16 +9,16 @@ import java.util.Objects;
 @DynamoDBTable(tableName = "fuzo-content")
 public class Content {
 
-    private long id;
+    private Long id;
 
     private String title;
 
     @DynamoDBHashKey(attributeName = "id")
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -40,7 +40,7 @@ public class Content {
             return false;
         }
         Content content = (Content) o;
-        return id == content.id;
+        return id.equals(content.id);
     }
 
     @Override

@@ -6,6 +6,8 @@ import de.funkedigital.fuzo.contentservice.repo.ContentRepo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -21,6 +23,11 @@ public class ContentController {
     @GetMapping("/content/{id}")
     public ResponseEntity<?> get(@PathVariable Long id) {
         return contentRepo.findById(id).map(ResponseEntity::ok).orElse(NOT_FOUND);
+    }
+
+    @PostMapping("/content")
+    public Content post(@RequestBody Content content) {
+        return contentRepo.save(content);
     }
 
 }

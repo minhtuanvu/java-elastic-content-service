@@ -7,6 +7,7 @@ import de.funkedigital.fuzo.contentservice.repo.ContentRepo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.aws.messaging.config.annotation.NotificationMessage;
 import org.springframework.cloud.aws.messaging.config.annotation.NotificationSubject;
 import org.springframework.cloud.aws.messaging.endpoint.NotificationStatus;
@@ -20,6 +21,7 @@ import java.io.IOException;
 
 @Controller
 @RequestMapping("/escenic-events")
+@ConditionalOnProperty("consumer.enabled")
 public class NotificationController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationController.class);
