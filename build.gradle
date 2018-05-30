@@ -38,6 +38,7 @@ dependencies {
     // https://mvnrepository.com/artifact/com.github.derjust/spring-data-dynamodb
     compile group: 'com.github.derjust', name: 'spring-data-dynamodb', version: '5.0.2'
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile 'org.assertj:assertj-core:3.9.1'
 }
 
 dependencyManagement {
