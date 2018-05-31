@@ -36,7 +36,11 @@ public class NotificationController {
     @NotificationMessageMapping
     public void handleNotificationMessage(@NotificationSubject String subject, @NotificationMessage String message) throws IOException {
         LOGGER.info("Receiving message with subject [{}] and message {{}}", subject, message);
-        contentService.create(message);
+        contentService.create(message)
+                .doOnError(e -> LOGGER.error("Failed to persist", e))
+                .doOnSuccess(content -> LOGGER.info("Content saved with id: {}", content.getId()));
+
+
     }
 
     @NotificationUnsubscribeConfirmationMapping

@@ -16,6 +16,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 
+import reactor.core.publisher.Mono;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,11 +42,11 @@ public class ContentServiceCreateTest {
         Long id = 1L;
         String body = "{\"articleId\" : \"1\"}";
         Content content = new Content(id, body);
-        when(contentRepo.save(any())).thenReturn(content);
+        when(contentRepo.save(any())).thenReturn(Mono.just(content));
         ArgumentCaptor<Content> contentArgumentCaptor = ArgumentCaptor.forClass(Content.class);
 
         //When
-        Content resultContent = contentService.create(body);
+        Content resultContent = contentService.create(body).block();
 
         //Then
         assertThat(resultContent.getBody()).isEqualTo(body);

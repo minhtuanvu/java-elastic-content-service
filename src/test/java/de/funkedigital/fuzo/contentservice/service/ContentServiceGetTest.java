@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -28,25 +28,25 @@ public class ContentServiceGetTest {
         //Given
         Long id = 1L;
         String body = "{\"key\" : \"value\"}";
-        when(contentRepo.findById(id)).thenReturn(Optional.of(new Content(id, body)));
+        when(contentRepo.findById(id)).thenReturn(Mono.just(new Content(id, body)));
 
         //When
-        Optional<String> result = contentService.get(id);
+        Mono<String> result = contentService.get(id);
 
         //Then
-        assertThat(result).contains(body);
+        assertThat(result.block()).isEqualTo(body);
     }
 
     @Test
     public void shouldReturnEmptyWhenNotFound() {
         //Given
         Long id = 1L;
-        when(contentRepo.findById(id)).thenReturn(Optional.empty());
+        when(contentRepo.findById(id)).thenReturn(Mono.empty());
 
         //When
-        Optional<String> result = contentService.get(id);
+        Mono<String> result = contentService.get(id);
 
         //Then
-        assertThat(result).isEmpty();
+        assertThat(result.block()).isNullOrEmpty();
     }
 }

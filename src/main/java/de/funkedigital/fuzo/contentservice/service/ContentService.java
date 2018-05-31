@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.Optional;
+
+import reactor.core.publisher.Mono;
 
 @Service
 public class ContentService {
@@ -26,11 +27,11 @@ public class ContentService {
         this.objectMapper = objectMapper;
     }
 
-    public Optional<String> get(Long id) {
+    public Mono<String> get(Long id) {
         return contentRepo.findById(id).map(Content::getBody);
     }
 
-    public Content create(String contentString) throws IOException {
+    public Mono<Content> create(String contentString) throws IOException {
         JsonNode node = objectMapper.readTree(contentString);
         JsonNode articleIdNode = node.get(ARTICLE_ID_FIELD);
         if (articleIdNode != null && !StringUtils.isEmpty(articleIdNode.asText())) {

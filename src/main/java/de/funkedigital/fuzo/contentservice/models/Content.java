@@ -1,13 +1,9 @@
 package de.funkedigital.fuzo.contentservice.models;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Objects;
 
-@DynamoDBTable(tableName = "fuzo-content")
 public class Content {
 
     public Content(Long id, String body) {
@@ -23,7 +19,6 @@ public class Content {
     @JsonIgnore
     private String body;
 
-    @DynamoDBHashKey(attributeName = "id")
     public Long getId() {
         return id;
     }
@@ -32,7 +27,6 @@ public class Content {
         this.id = id;
     }
 
-    @DynamoDBAttribute(attributeName = "body")
     public String getBody() {
         return body;
     }
