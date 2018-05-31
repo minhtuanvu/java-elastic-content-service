@@ -38,7 +38,6 @@ public class ContentRepo {
                 @Override
                 public void onFailure(Exception e) {
                     sink.error(e);
-                    e.printStackTrace();
                 }
             });
         });
@@ -50,10 +49,8 @@ public class ContentRepo {
                 GetResponse response = restHighLevelClient.get(new GetRequest("contents", "id", String.valueOf(id)));
                 sink.success(new Content(id, response.getSourceAsString()));
             } catch (IOException e) {
-                e.printStackTrace();
                 sink.error(e);
             }
-
         });
     }
 }
