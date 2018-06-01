@@ -11,8 +11,6 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
-
 import reactor.core.publisher.Mono;
 
 
@@ -44,13 +42,18 @@ public class ContentRepo {
     }
 
     public Mono<Content> findById(Long id) {
-        return Mono.create(sink -> {
-            try {
-                GetResponse response = restHighLevelClient.get(new GetRequest("contents", "id", String.valueOf(id)));
-                sink.success(new Content(id, response.getSourceAsString()));
-            } catch (IOException e) {
-                sink.error(e);
-            }
-        });
+        return Mono.create(sink -> restHighLevelClient
+                .getAsync(new GetRequest("contents", "id", String.valueOf(id)),
+                        new ActionListener<GetResponse>() {
+                            @Override
+                            public void onResponse(GetResponse getFields) {
+                                sink.success(new Content(id, getFields.getSourceAsString()));
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                sink.error(e);
+                            }
+                        }));
     }
 }
