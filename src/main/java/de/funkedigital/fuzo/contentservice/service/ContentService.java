@@ -28,7 +28,7 @@ public class ContentService {
     private final ContentRepo contentRepo;
     private final ObjectMapper objectMapper;
     private final TransformContentService transformContentService;
-    private final Map<ActionType, BiFunction<JsonNode, JsonNode, Mono<Content>>> transformerActionMap = new HashMap<>();
+    private final Map<ActionType, BiFunction<JsonNode, Long, Mono<Content>>> transformerActionMap = new HashMap<>();
 
     public enum ActionType {
         CREATE, UPDATE
@@ -63,7 +63,7 @@ public class ContentService {
                 ActionType actionType = ActionType.valueOf(actionTypeNode.asText().toUpperCase());
 
                 return Optional.ofNullable(transformerActionMap.get(actionType))
-                        .map(m -> m.apply(node, articleIdNode))
+                        .map(m -> m.apply(node, articleIdNode.asLong()))
                         .orElseThrow(() -> new UnsupportedOperationException(actionType.toString()));
             }
         }
