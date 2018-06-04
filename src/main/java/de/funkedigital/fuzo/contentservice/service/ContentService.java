@@ -15,11 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 
-import javafx.beans.property.ObjectProperty;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -27,14 +25,13 @@ public class ContentService {
 
     private static final String ARTICLE_ID_FIELD = "objectId";
     private static final String ACTION_TYPE_FIELD = "actionType";
-    private static final String PAYLOAD_FIELD = "payload";
     private final ContentRepo contentRepo;
     private final ObjectMapper objectMapper;
     private final TransformContentService transformContentService;
-    private Map<ActionType, BiFunction<JsonNode, JsonNode, Mono<Content>>> transformerActionMap = new HashMap<>();
+    private final Map<ActionType, BiFunction<JsonNode, JsonNode, Mono<Content>>> transformerActionMap = new HashMap<>();
 
     public enum ActionType {
-        CREATE, UPDATE, DELETE
+        CREATE, UPDATE
     }
 
     ContentService(ContentRepo contentRepo,
@@ -65,9 +62,9 @@ public class ContentService {
             if (actionTypeNode != null && !StringUtils.isEmpty(actionTypeNode.asText())) {
                 ActionType actionType = ActionType.valueOf(actionTypeNode.asText().toUpperCase());
 
-                return Optional.ofNullable(transformerActionMap.get(actionType)).map(m -> {
-                    return m.apply(node, articleIdNode);
-                }).orElseThrow(() -> new UnsupportedOperationException(actionType.toString()));
+                return Optional.ofNullable(transformerActionMap.get(actionType))
+                        .map(m -> m.apply(node, articleIdNode))
+                        .orElseThrow(() -> new UnsupportedOperationException(actionType.toString()));
             }
         }
         throw new RequiredFieldsException();

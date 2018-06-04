@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
 
@@ -20,7 +19,7 @@ import reactor.core.publisher.Mono;
  * Created By {kazi}
  */
 @Component
-public class TransformContentService  implements BiFunction<JsonNode,JsonNode,Mono<Content>>{
+public class TransformContentService implements BiFunction<JsonNode, JsonNode, Mono<Content>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformContentService.class);
 
 
@@ -29,24 +28,22 @@ public class TransformContentService  implements BiFunction<JsonNode,JsonNode,Mo
     private final ContentRepo contentRepo;
     private final ObjectMapper objectMapper;
 
-    public TransformContentService(ContentRepo contentRepo,ObjectMapper objectMapper) {
+    public TransformContentService(ContentRepo contentRepo, ObjectMapper objectMapper) {
         this.contentRepo = contentRepo;
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public Mono<Content> apply(JsonNode node, JsonNode articleIdNode)  {
-        Mono<Content> savedContent =null;
+    public Mono<Content> apply(JsonNode node, JsonNode articleIdNode) {
+        Mono<Content> savedContent = null;
 
         try {
-            savedContent=contentRepo.save(new Content(articleIdNode.asLong(),
+            savedContent = contentRepo.save(new Content(articleIdNode.asLong(),
                     objectMapper.writeValueAsString(node.get(PAYLOAD_FIELD))));
+        } catch (IOException ex) {
+            LOGGER.error("ERROR while transforming : ", ex);
         }
-        catch (IOException ex)
-        {
-            LOGGER.error("ERROR while transforming : ",ex);
-        }
-        return  savedContent;
+        return savedContent;
 
     }
 }
