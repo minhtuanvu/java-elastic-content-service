@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-import javax.annotation.PostConstruct;
-
 import reactor.core.publisher.Mono;
 
 @Service
@@ -27,7 +25,7 @@ public class ContentService {
     private static final String ACTION_TYPE_FIELD = "actionType";
     private final ContentRepo contentRepo;
     private final ObjectMapper objectMapper;
-    private final TransformContentService transformContentService;
+    private final SaveContentFunction saveContentFunction;
     private final Map<ActionType, BiFunction<JsonNode, Long, Mono<Content>>> transformerActionMap = new HashMap<>();
 
     public enum ActionType {
@@ -36,17 +34,17 @@ public class ContentService {
 
     ContentService(ContentRepo contentRepo,
                    ObjectMapper objectMapper,
-                   TransformContentService transformContentService
+                   SaveContentFunction saveContentFunction
     ) {
         this.contentRepo = contentRepo;
         this.objectMapper = objectMapper;
-        this.transformContentService = transformContentService;
+        this.saveContentFunction = saveContentFunction;
+        constructTransformerAction();
     }
 
-    @PostConstruct
     private void constructTransformerAction() {
-        transformerActionMap.put(ActionType.CREATE, transformContentService);
-        transformerActionMap.put(ActionType.UPDATE, transformContentService);
+        transformerActionMap.put(ActionType.CREATE, saveContentFunction);
+        transformerActionMap.put(ActionType.UPDATE, saveContentFunction);
 
     }
 
@@ -54,8 +52,8 @@ public class ContentService {
         return contentRepo.findById(id).map(Content::getBody);
     }
 
-    public Mono<Content> create(String contentString) throws IOException {
-        JsonNode node = objectMapper.readTree(contentString);
+    public Mono<Content> handleEvent(String eventString) throws IOException {
+        JsonNode node = objectMapper.readTree(eventString);
         JsonNode articleIdNode = node.get(ARTICLE_ID_FIELD);
         if (articleIdNode != null && !StringUtils.isEmpty(articleIdNode.asText())) {
             JsonNode actionTypeNode = node.get(ACTION_TYPE_FIELD);

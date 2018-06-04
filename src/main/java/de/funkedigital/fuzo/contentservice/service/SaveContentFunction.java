@@ -19,8 +19,8 @@ import reactor.core.publisher.Mono;
  * Created By {kazi}
  */
 @Component
-public class TransformContentService implements BiFunction<JsonNode, Long, Mono<Content>> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransformContentService.class);
+public class SaveContentFunction implements BiFunction<JsonNode, Long, Mono<Content>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaveContentFunction.class);
 
 
     private static final String PAYLOAD_FIELD = "payload";
@@ -28,7 +28,7 @@ public class TransformContentService implements BiFunction<JsonNode, Long, Mono<
     private final ContentRepo contentRepo;
     private final ObjectMapper objectMapper;
 
-    public TransformContentService(ContentRepo contentRepo, ObjectMapper objectMapper) {
+    public SaveContentFunction(ContentRepo contentRepo, ObjectMapper objectMapper) {
         this.contentRepo = contentRepo;
         this.objectMapper = objectMapper;
     }
@@ -42,6 +42,7 @@ public class TransformContentService implements BiFunction<JsonNode, Long, Mono<
                     objectMapper.writeValueAsString(node.get(PAYLOAD_FIELD))));
         } catch (IOException ex) {
             LOGGER.error("ERROR while transforming : ", ex);
+            throw new RuntimeException(ex);
         }
         return savedContent;
 

@@ -31,7 +31,7 @@ public class ContentController {
     //Just for testing
     @PostMapping("/content")
     public Mono<Content> post(@RequestBody String contentString) throws IOException {
-        return contentService.create(contentString);
+        return contentService.handleEvent(contentString);
     }
 
 }
