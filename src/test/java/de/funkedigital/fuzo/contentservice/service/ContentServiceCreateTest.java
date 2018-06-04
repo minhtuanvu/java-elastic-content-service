@@ -40,8 +40,8 @@ public class ContentServiceCreateTest {
     public void shouldMapIdAndBody() throws IOException {
         //Given
         Long id = 1L;
-        String body = "{\"articleId\" : \"1\"}";
-        Content content = new Content(id, body);
+        String body = "{\"objectId\" : \"1\", \"actionType\" : \"update\", \"payload\": {}}";
+        Content content = new Content(id, "{}");
         when(contentRepo.save(any())).thenReturn(Mono.just(content));
         ArgumentCaptor<Content> contentArgumentCaptor = ArgumentCaptor.forClass(Content.class);
 
@@ -49,7 +49,7 @@ public class ContentServiceCreateTest {
         Content resultContent = contentService.create(body).block();
 
         //Then
-        assertThat(resultContent.getBody()).isEqualTo(body);
+        assertThat(resultContent.getBody()).isEqualTo(content.getBody());
         assertThat(resultContent.getId()).isEqualTo(id);
         verify(contentRepo).save(contentArgumentCaptor.capture());
         assertThat(contentArgumentCaptor.getValue()).isEqualTo(content);
