@@ -1,4 +1,4 @@
-package de.funkedigital.fuzo.contentservice;
+package de.funkedigital.fuzo.contentservice.health;
 
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.client.RestHighLevelClient;
