@@ -42,7 +42,7 @@ public class ContentServiceHandleEventTest {
     @Test
     public void shouldHandleCreateEvent() throws IOException {
         //When
-        contentService.handleEvent("{\"objectId\": 1, \"actionType\": \"create\"}");
+        contentService.handleEvent("{\"objectId\": 1, \"actionType\": \"create\"}").block();
 
         //Then
         verify(saveContentFunction).apply(any(), anyLong());
@@ -51,7 +51,7 @@ public class ContentServiceHandleEventTest {
     @Test
     public void shouldHandleUpdateEvent() throws IOException {
         //When
-        contentService.handleEvent("{\"objectId\": 1, \"actionType\": \"update\"}");
+        contentService.handleEvent("{\"objectId\": 1, \"actionType\": \"update\"}").block();
 
         //Then
         verify(saveContentFunction).apply(any(), anyLong());
@@ -60,14 +60,14 @@ public class ContentServiceHandleEventTest {
     @Test
     public void shouldThrowExceptionWhenNoIdField() {
         assertThatThrownBy(() -> {
-            contentService.handleEvent("{ \"actionType\": \"update\"}");
+            contentService.handleEvent("{ \"actionType\": \"update\"}").block();
         }).isInstanceOf(RequiredFieldsException.class);
     }
 
     @Test
     public void shouldThrowExceptionWhenNoActionTypeField() {
         assertThatThrownBy(() -> {
-            contentService.handleEvent("{\"objectId\": 1}");
+            contentService.handleEvent("{\"objectId\": 1}").block();
         }).isInstanceOf(RequiredFieldsException.class);
     }
 }
