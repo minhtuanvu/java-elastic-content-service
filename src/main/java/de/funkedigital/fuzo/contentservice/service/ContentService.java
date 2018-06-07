@@ -6,6 +6,7 @@ import de.funkedigital.fuzo.contentservice.models.Event;
 import de.funkedigital.fuzo.contentservice.repo.ContentRepo;
 
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,10 +14,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import javax.validation.Valid;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@Validated
 public class ContentService {
 
     private final ContentRepo contentRepo;
@@ -40,7 +44,7 @@ public class ContentService {
         return contentRepo.findById(id).map(Content::getBody);
     }
 
-    public Mono<Content> handleEvent(Event event) throws IOException {
+    public Mono<Content> handleEvent(@Valid Event event) throws IOException {
         Event.ActionType actionType = event.getActionType();
 
         return Optional.ofNullable(transformerActionMap.get(actionType))
