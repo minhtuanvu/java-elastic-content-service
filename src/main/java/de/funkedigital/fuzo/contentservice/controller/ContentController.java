@@ -2,9 +2,11 @@ package de.funkedigital.fuzo.contentservice.controller;
 
 import de.funkedigital.fuzo.contentservice.models.Content;
 import de.funkedigital.fuzo.contentservice.models.ContentSearchRequest;
+import de.funkedigital.fuzo.contentservice.models.Event;
 import de.funkedigital.fuzo.contentservice.service.ContentService;
 
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,10 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+import javax.validation.Valid;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
+@Validated
 public class ContentController {
 
     private final ContentService contentService;
@@ -38,8 +43,8 @@ public class ContentController {
 
     //Just for testing
     @PostMapping("/content")
-    public Mono<Content> post(@RequestBody String contentString) throws IOException {
-        return contentService.handleEvent(contentString);
+    public Mono<Content> post(@RequestBody @Valid Event event) throws IOException {
+        return contentService.handleEvent(event);
     }
 
 }

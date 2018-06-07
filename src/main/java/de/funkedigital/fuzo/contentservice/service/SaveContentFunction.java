@@ -1,9 +1,9 @@
 package de.funkedigital.fuzo.contentservice.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.funkedigital.fuzo.contentservice.models.Content;
+import de.funkedigital.fuzo.contentservice.models.Event;
 import de.funkedigital.fuzo.contentservice.repo.ContentRepo;
 
 import org.slf4j.Logger;
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
 
@@ -19,11 +19,8 @@ import reactor.core.publisher.Mono;
  * Created By {kazi}
  */
 @Component
-public class SaveContentFunction implements BiFunction<JsonNode, Long, Mono<Content>> {
+public class SaveContentFunction implements Function<Event, Mono<Content>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SaveContentFunction.class);
-
-
-    private static final String PAYLOAD_FIELD = "payload";
 
     private final ContentRepo contentRepo;
     private final ObjectMapper objectMapper;
@@ -34,17 +31,15 @@ public class SaveContentFunction implements BiFunction<JsonNode, Long, Mono<Cont
     }
 
     @Override
-    public Mono<Content> apply(JsonNode node, Long articleId) {
-        Mono<Content> savedContent = null;
+    public Mono<Content> apply(Event event) {
 
         try {
-            savedContent = contentRepo.save(new Content(articleId,
-                    objectMapper.writeValueAsString(node.get(PAYLOAD_FIELD))));
+            return contentRepo.save(new Content(event.getObjectId(),
+                    objectMapper.writeValueAsString(event.getPayload())));
         } catch (IOException ex) {
             LOGGER.error("ERROR while transforming : ", ex);
             throw new RuntimeException(ex);
         }
-        return savedContent;
 
     }
 }

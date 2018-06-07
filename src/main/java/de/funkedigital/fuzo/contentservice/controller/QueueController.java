@@ -1,5 +1,8 @@
 package de.funkedigital.fuzo.contentservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import de.funkedigital.fuzo.contentservice.models.Event;
 import de.funkedigital.fuzo.contentservice.service.ContentService;
 
 import org.slf4j.Logger;
@@ -17,17 +20,21 @@ public class QueueController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueueController.class);
     private final ContentService contentService;
+    private final ObjectMapper objectMapper;
 
-    QueueController(ContentService contentService) {
+    QueueController(ContentService contentService,
+                    ObjectMapper objectMapper) {
         this.contentService = contentService;
+        this.objectMapper = objectMapper;
     }
 
 
-    @SqsListener(value = "https://sqs.eu-central-1.amazonaws.com/656201843059/fuzo-content-queue",
+    @SqsListener(value = "${queueUrl}",
             deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
-    public void handleNotificationMessage(String message) throws IOException {
-        LOGGER.info("Receiving message with message {{}}", message);
-        contentService.handleEvent(message).block();
+    public void handleNotificationMessage(String eventString) throws IOException {
+        Event event = objectMapper.readValue(eventString, Event.class);
+        LOGGER.info("Handling event: {}", event);
+        contentService.handleEvent(event).block();
     }
 
 

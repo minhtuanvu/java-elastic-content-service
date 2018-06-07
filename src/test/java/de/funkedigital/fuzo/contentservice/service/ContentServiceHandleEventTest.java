@@ -2,8 +2,8 @@ package de.funkedigital.fuzo.contentservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.funkedigital.fuzo.contentservice.exceptions.RequiredFieldsException;
 import de.funkedigital.fuzo.contentservice.models.Content;
+import de.funkedigital.fuzo.contentservice.models.Event;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +17,7 @@ import java.io.IOException;
 
 import reactor.core.publisher.Mono;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,38 +34,16 @@ public class ContentServiceHandleEventTest {
     @Before
     public void setUp() throws Exception {
         Content content = new Content(1L, "");
-        when(saveContentFunction.apply(any(), anyLong())).thenReturn(Mono.just(content));
+        when(saveContentFunction.apply(any())).thenReturn(Mono.just(content));
     }
 
     @Test
-    public void shouldHandleCreateEvent() throws IOException {
+    public void shouldHandleEvent() throws IOException {
         //When
-        contentService.handleEvent("{\"objectId\": 1, \"actionType\": \"create\"}").block();
+        contentService.handleEvent(new Event(Event.ActionType.CREATE, 1L, objectMapper.createObjectNode())).block();
 
         //Then
-        verify(saveContentFunction).apply(any(), anyLong());
+        verify(saveContentFunction).apply(any());
     }
 
-    @Test
-    public void shouldHandleUpdateEvent() throws IOException {
-        //When
-        contentService.handleEvent("{\"objectId\": 1, \"actionType\": \"update\"}").block();
-
-        //Then
-        verify(saveContentFunction).apply(any(), anyLong());
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenNoIdField() {
-        assertThatThrownBy(() -> {
-            contentService.handleEvent("{ \"actionType\": \"update\"}").block();
-        }).isInstanceOf(RequiredFieldsException.class);
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenNoActionTypeField() {
-        assertThatThrownBy(() -> {
-            contentService.handleEvent("{\"objectId\": 1}").block();
-        }).isInstanceOf(RequiredFieldsException.class);
-    }
 }
