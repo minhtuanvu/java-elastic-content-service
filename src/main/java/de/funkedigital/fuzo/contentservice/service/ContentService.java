@@ -24,18 +24,22 @@ public class ContentService {
 
     private final ContentRepo contentRepo;
     private final SaveContentFunction saveContentFunction;
+    private final DeleteContentFunction deleteContentFunction;
     private final Map<Event.ActionType, Function<Event, Mono<Content>>> transformerActionMap = new HashMap<>();
 
     ContentService(ContentRepo contentRepo,
-                   SaveContentFunction saveContentFunction) {
+                   SaveContentFunction saveContentFunction,
+                   DeleteContentFunction deleteContentFunction) {
         this.contentRepo = contentRepo;
         this.saveContentFunction = saveContentFunction;
+        this.deleteContentFunction = deleteContentFunction;
         constructTransformerAction();
     }
 
     private void constructTransformerAction() {
         transformerActionMap.put(Event.ActionType.CREATE, saveContentFunction);
         transformerActionMap.put(Event.ActionType.UPDATE, saveContentFunction);
+        transformerActionMap.put(Event.ActionType.DELETE, deleteContentFunction);
 
     }
 

@@ -4,6 +4,8 @@ import de.funkedigital.fuzo.contentservice.models.Content;
 import de.funkedigital.fuzo.contentservice.models.ContentSearchRequest;
 
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -30,6 +32,8 @@ import reactor.core.publisher.Mono;
 public class ContentRepo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentRepo.class);
+    private static final String CONTENT_INDEX = "contents";
+    private static final String ID_FIELD = "id";
 
     private final RestHighLevelClient restHighLevelClient;
     private final String[] includes = new String[]{};
@@ -41,7 +45,7 @@ public class ContentRepo {
 
     public Mono<Content> save(Content content) {
         return Mono.create(sink -> {
-            IndexRequest indexRequest = new IndexRequest("contents", "id", String.valueOf(content.getId()));
+            IndexRequest indexRequest = new IndexRequest(CONTENT_INDEX, ID_FIELD, String.valueOf(content.getId()));
             indexRequest.source(content.getBody(), XContentType.JSON);
             restHighLevelClient.indexAsync(indexRequest, new ActionListener<IndexResponse>() {
                 @Override
@@ -59,7 +63,7 @@ public class ContentRepo {
 
     public Mono<Content> findById(Long id) {
         return Mono.create(sink -> restHighLevelClient
-                .getAsync(new GetRequest("contents", "id", String.valueOf(id)),
+                .getAsync(new GetRequest(CONTENT_INDEX, ID_FIELD, String.valueOf(id)),
                         new ActionListener<GetResponse>() {
                             @Override
                             public void onResponse(GetResponse getFields) {
@@ -79,7 +83,7 @@ public class ContentRepo {
 
     private Stream<String> streamSearch(ContentSearchRequest contentSearchRequest) {
         try {
-            return StreamSupport.stream(restHighLevelClient.search(new SearchRequest("contents")
+            return StreamSupport.stream(restHighLevelClient.search(new SearchRequest(CONTENT_INDEX)
                     .source(new SearchSourceBuilder()
                             .query(QueryBuilders.termsQuery("homeSection.uniqueName", contentSearchRequest.getHomeSections()))
                             .from(contentSearchRequest.getOffset())
@@ -92,4 +96,20 @@ public class ContentRepo {
         }
     }
 
+
+    public Mono<Content> delete(Long id) {
+        return Mono.create(sink -> restHighLevelClient.deleteAsync(
+                new DeleteRequest(CONTENT_INDEX, ID_FIELD, String.valueOf(id)),
+                new ActionListener<DeleteResponse>() {
+                    @Override
+                    public void onResponse(DeleteResponse deleteResponse) {
+                        sink.success(new Content(id, null));
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        sink.error(e);
+                    }
+                }));
+    }
 }

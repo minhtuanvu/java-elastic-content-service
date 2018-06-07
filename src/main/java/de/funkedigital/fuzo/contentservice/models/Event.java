@@ -23,7 +23,7 @@ public class Event {
     }
 
     public enum ActionType {
-        CREATE, UPDATE;
+        CREATE, UPDATE, DELETE;
 
         @JsonCreator
         public static ActionType fromString(String key) {
