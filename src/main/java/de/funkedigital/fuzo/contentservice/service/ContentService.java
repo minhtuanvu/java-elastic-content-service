@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.funkedigital.fuzo.contentservice.exceptions.RequiredFieldsException;
 import de.funkedigital.fuzo.contentservice.models.Content;
+import de.funkedigital.fuzo.contentservice.models.ContentSearchRequest;
 import de.funkedigital.fuzo.contentservice.repo.ContentRepo;
 
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -27,6 +29,7 @@ public class ContentService {
     private final ObjectMapper objectMapper;
     private final SaveContentFunction saveContentFunction;
     private final Map<ActionType, BiFunction<JsonNode, Long, Mono<Content>>> transformerActionMap = new HashMap<>();
+
 
     public enum ActionType {
         CREATE, UPDATE
@@ -69,4 +72,8 @@ public class ContentService {
     }
 
 
+    public Flux<String> searchBy(ContentSearchRequest contentSearchRequest) {
+        return contentRepo.search(contentSearchRequest);
+
+    }
 }
