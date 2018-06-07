@@ -13,8 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
-
 import reactor.core.publisher.Mono;
 
 import static org.mockito.Mockito.any;
@@ -32,13 +30,13 @@ public class ContentServiceHandleEventTest {
     private ContentService contentService;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Content content = new Content(1L, "");
         when(saveContentFunction.apply(any())).thenReturn(Mono.just(content));
     }
 
     @Test
-    public void shouldHandleEvent() throws IOException {
+    public void shouldHandleEvent() {
         //When
         contentService.handleEvent(new Event(Event.ActionType.CREATE, 1L, objectMapper.createObjectNode())).block();
 

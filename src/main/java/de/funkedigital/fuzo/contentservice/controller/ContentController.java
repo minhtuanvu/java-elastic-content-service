@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 import javax.validation.Valid;
 
 import reactor.core.publisher.Flux;
@@ -43,7 +41,7 @@ public class ContentController {
 
     //Just for testing
     @PostMapping("/content")
-    public Mono<Content> post(@RequestBody @Valid Event event) throws IOException {
+    public Mono<Content> post(@RequestBody @Valid Event event) {
         return contentService.handleEvent(event);
     }
 
