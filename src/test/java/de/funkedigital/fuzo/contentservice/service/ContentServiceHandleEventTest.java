@@ -23,9 +23,9 @@ import static org.mockito.Mockito.when;
 public class ContentServiceHandleEventTest {
 
     @Spy
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Mock
-    SaveContentFunction saveContentFunction;
+    private SaveContentFunction saveContentFunction;
     @InjectMocks
     private ContentService contentService;
 

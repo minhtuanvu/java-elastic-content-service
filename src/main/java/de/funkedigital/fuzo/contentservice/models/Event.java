@@ -36,8 +36,6 @@ public class Event {
         public String getKey() {
             return toString();
         }
-
-
     }
 
     @NotNull
