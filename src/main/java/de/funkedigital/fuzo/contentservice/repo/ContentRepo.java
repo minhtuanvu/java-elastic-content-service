@@ -8,6 +8,8 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -21,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -111,5 +114,21 @@ public class ContentRepo {
                         sink.error(e);
                     }
                 }));
+    }
+
+    public Flux<String> findByIds(Set<Long> topList) {
+        MultiGetRequest multiGetRequest = new MultiGetRequest();
+        topList.forEach(id -> multiGetRequest.add(CONTENT_INDEX, ID_FIELD, String.valueOf(id)));
+        return Flux.fromStream(() -> {
+            try {
+                return StreamSupport.stream(restHighLevelClient
+                        .multiGet(multiGetRequest).spliterator(), false)
+                        .map(MultiGetItemResponse::getResponse)
+                        .map(GetResponse::getSourceAsString);
+            } catch (IOException e) {
+                LOGGER.error("Failed to search", e);
+                return Stream.empty();
+            }
+        });
     }
 }
