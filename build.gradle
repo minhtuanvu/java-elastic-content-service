@@ -44,6 +44,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-feign
     compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-feign', version: '1.4.4.RELEASE'
 
+    // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-hystrix
+    compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-hystrix', version: '1.4.4.RELEASE'
+
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile 'org.assertj:assertj-core:3.9.1'
 }
