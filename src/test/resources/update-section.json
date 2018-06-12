@@ -1,0 +1,55 @@
+{
+  "actionType": "update",
+  "dataType": "section",
+  "payload": {
+    "sectionId": 34276,
+    "name": "test-sub-section",
+    "uniqueName": "test-sub-section",
+    "directoryName": "test_subsection",
+    "directoryPath": "test/test_subsection/",
+    "subsections": [
+      {
+        "sectionId": 34279,
+        "name": "sub-section31",
+        "uniqueName": "test.sub-section3",
+        "directoryName": "sub-section3",
+        "directoryPath": "test/test_subsection/sub-section3/",
+        "subsections": []
+      },
+      {
+        "sectionId": 34281,
+        "name": "sub-sub-sub-section4",
+        "uniqueName": "sub-sub-sub-section4",
+        "directoryName": "sub-sub-sub-section4",
+        "directoryPath": "test/test_subsection/subsection4/sub-sub-section4/sub-sub-sub-section4/",
+        "subsections": []
+      },
+      {
+        "sectionId": 34277,
+        "name": "sectioncreate test",
+        "uniqueName": "test.subsection.sectioncreate",
+        "directoryName": "sectioncreate_test",
+        "directoryPath": "test/test_subsection/sectioncreate_test/",
+        "subsections": []
+      },
+      {
+        "sectionId": 34280,
+        "name": "sub-sub-section4",
+        "uniqueName": "sub-sub-section4",
+        "directoryName": "sub-sub-section4",
+        "directoryPath": "test/test_subsection/subsection4/sub-sub-section4/",
+        "subsections": []
+      },
+      {
+        "sectionId": 34278,
+        "name": "sub-section4",
+        "uniqueName": "test.sub-section4",
+        "directoryName": "subsection4",
+        "directoryPath": "test/test_subsection/subsection4/",
+        "subsections": []
+      }
+    ]
+  },
+  "objectId": 34276,
+  "timestamp": 1528744417289
+}

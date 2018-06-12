@@ -19,6 +19,10 @@ public class Content {
     @JsonIgnore
     private String body;
 
+    public Content(Long id) {
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }

@@ -15,9 +15,11 @@ public class Event {
     }
 
     public Event(@NotNull ActionType actionType,
+                 @NotNull DataType dataType,
                  @NotNull Long objectId,
                  @NotNull JsonNode payload) {
         this.actionType = actionType;
+        this.dataType = dataType;
         this.objectId = objectId;
         this.payload = payload;
     }
@@ -38,9 +40,26 @@ public class Event {
         }
     }
 
+    public enum DataType {
+        ARTICLE, SECTION;
+
+        @JsonCreator
+        public static DataType fromString(String key) {
+            return Optional.ofNullable(key)
+                    .map(s -> DataType.valueOf(s.toUpperCase()))
+                    .orElse(null);
+        }
+
+        @JsonValue
+        public String getKey() {
+            return toString();
+        }
+    }
+
     @NotNull
     private ActionType actionType;
 
+    private DataType dataType;
     @NotNull
     private Long objectId;
 
@@ -90,10 +109,19 @@ public class Event {
         return Objects.hash(actionType, objectId);
     }
 
+    public DataType getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(DataType dataType) {
+        this.dataType = dataType;
+    }
+
     @Override
     public String toString() {
         return "Event{" +
                 "actionType=" + actionType +
+                ", dataType=" + dataType +
                 ", objectId=" + objectId +
                 '}';
     }

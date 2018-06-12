@@ -1,7 +1,10 @@
 package de.funkedigital.fuzo.contentservice.repo;
 
+import com.google.common.collect.ImmutableMap;
+
 import de.funkedigital.fuzo.contentservice.models.Content;
 import de.funkedigital.fuzo.contentservice.models.ContentSearchRequest;
+import de.funkedigital.fuzo.contentservice.models.Section;
 
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -13,9 +16,12 @@ import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.collect.Tuple;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
@@ -23,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -130,5 +138,50 @@ public class ContentRepo {
                 return Stream.empty();
             }
         });
+    }
+
+
+    public Flux<Content> updateSection(Section section) {
+        LOGGER.info("Updating section {}", section.getUniqueName());
+
+        return Flux.fromStream(() -> {
+            try {
+                return StreamSupport.stream(restHighLevelClient.search(new SearchRequest(CONTENT_INDEX)
+                        .source(new SearchSourceBuilder()
+                                .query(QueryBuilders.termsQuery("homeSection.sectionId",
+                                        String.valueOf(section.getSectionId())))))
+                        .getHits().spliterator(), false)
+                        .map(SearchHit::getId)
+                        .map(id -> updateSection(id, section))
+                        .filter(Objects::nonNull)
+                        .map(result -> {
+                            LOGGER.info("Content id {} updated with status {}", result.v1(), result.v2());
+                            return new Content(Long.parseLong(result.v1()));
+                        });
+            } catch (IOException e) {
+                return Stream.empty();
+            }
+        });
+
+    }
+
+    private Tuple<String, RestStatus> updateSection(String id, Section section) {
+        try {
+            return Tuple.tuple(id, restHighLevelClient.update(new UpdateRequest(CONTENT_INDEX, ID_FIELD, id)
+                    .doc(getSectionDocMap(section))).status());
+        } catch (IOException e) {
+            LOGGER.warn("Unable to update section on {}", id, e);
+        }
+        return null;
+    }
+
+    private Map<String, Map<String, String>> getSectionDocMap(Section section) {
+        return ImmutableMap.of("homeSection",
+                ImmutableMap.of(
+                        "name", section.getName(),
+                        "uniqueName", section.getUniqueName(),
+                        "directoryName", section.getDirectoryName(),
+                        "directoryPath", section.getDirectoryPath()
+                ));
     }
 }
