@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class ElasticSearchHealthindicator implements HealthIndicator {
+public class ElasticSearchHealthIndicator implements HealthIndicator {
 
 
     private final RestHighLevelClient restHighLevelClient;
 
-    ElasticSearchHealthindicator(RestHighLevelClient restHighLevelClient) {
+    ElasticSearchHealthIndicator(RestHighLevelClient restHighLevelClient) {
         this.restHighLevelClient = restHighLevelClient;
     }
 
