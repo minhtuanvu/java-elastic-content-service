@@ -6,11 +6,8 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 public class ElasticSearchHealthIndicator implements HealthIndicator {
-
 
     private final RestHighLevelClient restHighLevelClient;
 
@@ -22,7 +19,7 @@ public class ElasticSearchHealthIndicator implements HealthIndicator {
     public Health health() {
         try {
             restHighLevelClient.get(new GetRequest("contents", "id", "1"));
-        } catch (IOException e) {
+        } catch (Exception e) {
             return Health.down(e).build();
         }
         return Health.up().build();

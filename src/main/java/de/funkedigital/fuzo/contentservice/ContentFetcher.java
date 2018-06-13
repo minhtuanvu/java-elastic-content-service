@@ -36,12 +36,12 @@ public class ContentFetcher {
         JsonNode result = restTemplate.getForObject(uri, JsonNode.class);
         JsonNode docs = result.get("response").get("docs");
         Stream<CompletableFuture<Void>> futures = StreamSupport.stream(docs.spliterator(), false).map(jsonNode -> CompletableFuture.runAsync(() -> {
-            String jsonContent = restTemplate.getForObject("http://uat-be:8080/fuzo/template/framework/tools/article.v2.json.jsp?articleId={id}", String.class, jsonNode.get("objectid").asText());
+            String jsonContent = restTemplate.getForObject("http://uat-fe1:8080/fuzo/template/framework/tools/article.v2.json.jsp?articleId={id}", String.class, jsonNode.get("objectid").asText());
             webClient.post().uri("/events").body(BodyInserters.fromObject(jsonContent)).header("Content-Type", "application/json").exchange().block();
         }, executorService));
 
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
-
+        executorService.shutdown();
         return docs != null;
 
     }

@@ -61,6 +61,8 @@ public class ContentRepo {
             restHighLevelClient.indexAsync(indexRequest, new ActionListener<IndexResponse>() {
                 @Override
                 public void onResponse(IndexResponse indexResponse) {
+
+                    LOGGER.info("Content saved successfully: {}", indexResponse.getId());
                     sink.success(content);
                 }
 
@@ -78,7 +80,11 @@ public class ContentRepo {
                         new ActionListener<GetResponse>() {
                             @Override
                             public void onResponse(GetResponse getFields) {
-                                sink.success(new Content(id, getFields.getSourceAsString()));
+                                if (getFields.isExists()) {
+                                    sink.success(new Content(Long.parseLong(getFields.getId()), getFields.getSourceAsString()));
+                                } else {
+                                    sink.success();
+                                }
                             }
 
                             @Override
@@ -100,7 +106,9 @@ public class ContentRepo {
                             .from(contentSearchRequest.getOffset())
                             .size(contentSearchRequest.getLimit())
                             .fetchSource(includes, excludes)))
-                    .getHits().spliterator(), false).map(SearchHit::getSourceAsString);
+                    .getHits().spliterator(), false)
+                    .map(SearchHit::getSourceAsString)
+                    .filter(Objects::nonNull);
         } catch (IOException e) {
             LOGGER.error("Failed to search", e);
             return Stream.empty();
@@ -124,15 +132,17 @@ public class ContentRepo {
                 }));
     }
 
-    public Flux<String> findByIds(Set<Long> topList) {
+    public Flux<String> findByIds(Set<Long> ids) {
+        LOGGER.info("Multi getting ids: {}", ids);
         MultiGetRequest multiGetRequest = new MultiGetRequest();
-        topList.forEach(id -> multiGetRequest.add(CONTENT_INDEX, ID_FIELD, String.valueOf(id)));
+        ids.forEach(id -> multiGetRequest.add(CONTENT_INDEX, ID_FIELD, String.valueOf(id)));
         return Flux.fromStream(() -> {
             try {
                 return StreamSupport.stream(restHighLevelClient
                         .multiGet(multiGetRequest).spliterator(), false)
                         .map(MultiGetItemResponse::getResponse)
-                        .map(GetResponse::getSourceAsString);
+                        .map(GetResponse::getSourceAsString)
+                        .filter(Objects::nonNull);
             } catch (IOException e) {
                 LOGGER.error("Failed to search", e);
                 return Stream.empty();

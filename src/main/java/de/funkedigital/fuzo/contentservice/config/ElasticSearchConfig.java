@@ -14,11 +14,11 @@ public class ElasticSearchConfig {
     RestHighLevelClient restHighLevelClient(@Value("${elastic.host}") String host) {
         return new RestHighLevelClient(
                 RestClient
-                        .builder(new HttpHost(host, 9200))
+                        .builder(new HttpHost(host))
                         .setRequestConfigCallback(config -> config
-                                .setConnectTimeout(5_000)
-                                .setConnectionRequestTimeout(5_000)
-                                .setSocketTimeout(5_000)
+                                .setConnectTimeout(50_000)
+                                .setConnectionRequestTimeout(50_000)
+                                .setSocketTimeout(50_000)
                         )
                         .setMaxRetryTimeoutMillis(5_000));
     }
