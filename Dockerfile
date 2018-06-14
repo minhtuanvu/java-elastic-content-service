@@ -5,6 +5,11 @@ RUN ./gradlew clean check build
 
 FROM openjdk:8-jre-alpine
 RUN apk --no-cache add ca-certificates
+RUN echo $HOME
+RUN mkdir /root/.aws
+
+ADD credentials /root/.aws/credentials
+
 WORKDIR /running/
 COPY deploy/run.sh run.sh
 RUN chmod +x run.sh
