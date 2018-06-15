@@ -14,5 +14,7 @@ WORKDIR /running/
 COPY deploy/run.sh run.sh
 RUN chmod +x run.sh
 COPY --from=build-env /building/build/libs/app.jar app.jar
+HEALTHCHECK --interval=5m --timeout=30s \
+  CMD curl -f http://localhost:8080/actuator/info
 EXPOSE 8080
 ENTRYPOINT ./run.sh java -Djava.security.egd=file:/dev/./urandom -Dsun.net.inetaddr.ttl=60 -jar app.jar
