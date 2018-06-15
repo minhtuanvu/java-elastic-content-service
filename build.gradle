@@ -34,9 +34,11 @@ ext {
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.boot:spring-boot-starter-web')
-    compile('org.springframework.cloud:spring-cloud-starter-aws')
     compile('org.springframework.boot:spring-boot-starter-webflux')
-    compile('org.springframework.cloud:spring-cloud-starter-aws-messaging')
+
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sqs
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-sqs', version: '1.11.347'
+
     // https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-high-level-client
     compile group: 'org.elasticsearch', name: 'elasticsearch', version: '6.2.4'
     compile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: '6.2.4'
