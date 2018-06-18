@@ -5,6 +5,7 @@ RUN ./gradlew clean check build
 
 FROM openjdk:8-jre-alpine
 RUN apk --no-cache add ca-certificates
+RUN apk --update add curl
 RUN echo $HOME
 RUN mkdir /root/.aws
 
@@ -14,7 +15,5 @@ WORKDIR /running/
 COPY deploy/run.sh run.sh
 RUN chmod +x run.sh
 COPY --from=build-env /building/build/libs/app.jar app.jar
-HEALTHCHECK --interval=5m --timeout=30s \
-  CMD curl -f http://localhost:8080/actuator/info
 EXPOSE 8080
 ENTRYPOINT ./run.sh java -Djava.security.egd=file:/dev/./urandom -Dsun.net.inetaddr.ttl=60 -jar app.jar
