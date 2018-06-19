@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @FeignClient(url = "${ga.url}", name = "ga", fallback = TopListRepoFallback.class)
 public interface TopListRepo {
 
-    @RequestMapping(method = RequestMethod.GET, path = "/googleanalytics/analytics/fuzo")
+    @RequestMapping(method = RequestMethod.GET)
     TopListResult getTopList();
 
 }
