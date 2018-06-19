@@ -11,15 +11,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Created By {kazi}
  */
 @Component
-public class SaveContentFunction implements Function<Event, Mono<Content>> {
+public class SaveContentFunction implements Function<Event, List<Content>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SaveContentFunction.class);
 
     private final ContentRepo contentRepo;
@@ -31,11 +31,11 @@ public class SaveContentFunction implements Function<Event, Mono<Content>> {
     }
 
     @Override
-    public Mono<Content> apply(Event event) {
+    public List<Content> apply(Event event) {
 
         try {
-            return contentRepo.save(new Content(event.getObjectId(),
-                    objectMapper.writeValueAsString(event.getPayload())));
+            return Collections.singletonList(contentRepo.save(new Content(event.getObjectId(),
+                    objectMapper.writeValueAsString(event.getPayload()))));
         } catch (IOException ex) {
             LOGGER.error("ERROR while transforming : ", ex);
             throw new RuntimeException(ex);

@@ -8,7 +8,6 @@ import de.funkedigital.fuzo.contentservice.models.Section;
 
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
@@ -29,9 +28,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -54,24 +56,12 @@ public class ContentRepo {
         this.restHighLevelClient = restHighLevelClient;
     }
 
-    public Mono<Content> save(Content content) {
-        return Mono.create(sink -> {
-            IndexRequest indexRequest = new IndexRequest(CONTENT_INDEX, ID_FIELD, String.valueOf(content.getId()));
-            indexRequest.source(content.getBody(), XContentType.JSON);
-            restHighLevelClient.indexAsync(indexRequest, new ActionListener<IndexResponse>() {
-                @Override
-                public void onResponse(IndexResponse indexResponse) {
-
-                    LOGGER.info("Content saved successfully: {}", indexResponse.getId());
-                    sink.success(content);
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    sink.error(e);
-                }
-            });
-        });
+    public Content save(Content content) throws IOException {
+        IndexRequest indexRequest = new IndexRequest(CONTENT_INDEX, ID_FIELD, String.valueOf(content.getId()));
+        indexRequest.source(content.getBody(), XContentType.JSON);
+        IndexResponse status = restHighLevelClient.index(indexRequest);
+        LOGGER.info("Save status: {}", status);
+        return new Content(Long.parseLong(status.getId()));
     }
 
     public Mono<Content> findById(Long id) {
@@ -103,7 +93,7 @@ public class ContentRepo {
         try {
             return StreamSupport.stream(restHighLevelClient.search(new SearchRequest(CONTENT_INDEX)
                     .source(new SearchSourceBuilder()
-                            .query(QueryBuilders.termsQuery("homeSection.uniqueName", contentSearchRequest.getHomeSections()))
+                            .query(QueryBuilders.termsQuery("homeSection.sectionId", contentSearchRequest.getHomeSections()))
                             .from(contentSearchRequest.getOffset())
                             .size(contentSearchRequest.getLimit())
                             .fetchSource(includes, excludes)))
@@ -117,20 +107,8 @@ public class ContentRepo {
     }
 
 
-    public Mono<Content> delete(Long id) {
-        return Mono.create(sink -> restHighLevelClient.deleteAsync(
-                new DeleteRequest(CONTENT_INDEX, ID_FIELD, String.valueOf(id)),
-                new ActionListener<DeleteResponse>() {
-                    @Override
-                    public void onResponse(DeleteResponse deleteResponse) {
-                        sink.success(new Content(id, null));
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        sink.error(e);
-                    }
-                }));
+    public void delete(Long id) throws IOException {
+        restHighLevelClient.delete(new DeleteRequest(CONTENT_INDEX, ID_FIELD, String.valueOf(id)));
     }
 
     public Flux<String> findByIds(Set<Long> ids) {
@@ -152,27 +130,26 @@ public class ContentRepo {
     }
 
 
-    public Flux<Content> updateSection(Section section) {
+    public List<Content> updateSection(Section section) {
         LOGGER.info("Updating section {} ", section);
 
-        return Flux.fromStream(() -> {
-            try {
-                return StreamSupport.stream(restHighLevelClient.search(new SearchRequest(CONTENT_INDEX)
-                        .source(new SearchSourceBuilder()
-                                .query(QueryBuilders.termsQuery("homeSection.sectionId",
-                                        String.valueOf(section.getSectionId())))))
-                        .getHits().spliterator(), false)
-                        .map(SearchHit::getId)
-                        .map(id -> updateSection(id, section))
-                        .filter(Objects::nonNull)
-                        .map(result -> {
-                            LOGGER.info("Content id {} updated with status {}", result.v1(), result.v2());
-                            return new Content(Long.parseLong(result.v1()));
-                        });
-            } catch (IOException e) {
-                return Stream.empty();
-            }
-        });
+        try {
+            return StreamSupport.stream(restHighLevelClient.search(new SearchRequest(CONTENT_INDEX)
+                    .source(new SearchSourceBuilder()
+                            .query(QueryBuilders.termsQuery("homeSection.sectionId",
+                                    String.valueOf(section.getSectionId())))))
+                    .getHits().spliterator(), true)
+                    .map(SearchHit::getId)
+                    .map(id -> updateSection(id, section))
+                    .filter(Objects::nonNull)
+                    .map(result -> {
+                        LOGGER.info("Content id {} updated with status {}", result.v1(), result.v2());
+                        return new Content(Long.parseLong(result.v1()));
+                    }).collect(Collectors.toList());
+        } catch (Exception e) {
+            LOGGER.error("Failed to search", e);
+            return Collections.emptyList();
+        }
 
     }
 

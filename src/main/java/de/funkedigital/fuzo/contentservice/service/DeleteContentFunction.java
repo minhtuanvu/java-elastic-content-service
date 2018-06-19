@@ -4,14 +4,19 @@ import de.funkedigital.fuzo.contentservice.models.Content;
 import de.funkedigital.fuzo.contentservice.models.Event;
 import de.funkedigital.fuzo.contentservice.repo.ContentRepo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
-import reactor.core.publisher.Mono;
-
 @Service
-public class DeleteContentFunction implements Function<Event, Mono<Content>> {
+public class DeleteContentFunction implements Function<Event, List<Content>> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteContentFunction.class);
 
     private final ContentRepo contentRepo;
 
@@ -20,7 +25,13 @@ public class DeleteContentFunction implements Function<Event, Mono<Content>> {
     }
 
     @Override
-    public Mono<Content> apply(Event event) {
-        return contentRepo.delete(event.getObjectId());
+    public List<Content> apply(Event event) {
+        try {
+            contentRepo.delete(event.getObjectId());
+        } catch (IOException e) {
+            LOGGER.error("Failed to delete content", e);
+            throw new RuntimeException(e);
+        }
+        return Collections.emptyList();
     }
 }

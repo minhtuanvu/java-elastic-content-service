@@ -8,6 +8,7 @@ import de.funkedigital.fuzo.contentservice.repo.ContentRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -21,7 +22,7 @@ public class ArticleService {
     private final ContentRepo contentRepo;
     private final SaveContentFunction saveContentFunction;
     private final DeleteContentFunction deleteContentFunction;
-    private final Map<Event.ActionType, Function<Event, Mono<Content>>> transformerActionMap = new HashMap<>();
+    private final Map<Event.ActionType, Function<Event, List<Content>>> transformerActionMap = new HashMap<>();
 
     ArticleService(ContentRepo contentRepo,
                    SaveContentFunction saveContentFunction,
@@ -43,7 +44,7 @@ public class ArticleService {
         return contentRepo.findById(id).map(Content::getBody);
     }
 
-    Mono<Content> handleEvent(Event event) {
+    List<Content> handleEvent(Event event) {
         Event.ActionType actionType = event.getActionType();
 
         return Optional.ofNullable(transformerActionMap.get(actionType))

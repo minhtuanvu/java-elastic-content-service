@@ -8,7 +8,6 @@ import de.funkedigital.fuzo.contentservice.models.Event;
 import de.funkedigital.fuzo.contentservice.service.EventService;
 
 import org.elasticsearch.common.collect.Tuple;
-import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +16,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Component
 @ConditionalOnProperty("consumer.enabled")
@@ -59,21 +56,9 @@ public class QueueController {
                 })
                 .filter(Objects::nonNull)
                 .forEach(tuple -> {
-                    Publisher<Content> result = eventService.handleEvent(tuple.v2());
-                    if (result instanceof Mono) {
-                        ((Mono<Content>) result).block();
-                        amazonSQS.deleteMessage(url, tuple.v1());
-                        LOGGER.info("Message removed from queue: {}", tuple.v1());
-                    } else {
-                        if (result instanceof Flux) {
-                            ((Flux<Content>) result).blockLast();
-                            amazonSQS.deleteMessage(url, tuple.v1());
-                            LOGGER.info("Message removed from queue: {}", tuple.v1());
-                        } else {
-                            throw new RuntimeException("Unknown result object");
-                        }
-                    }
-
+                    List<Content> result = eventService.handleEvent(tuple.v2());
+                    LOGGER.info("Result: {}", result);
+                    amazonSQS.deleteMessage(url, tuple.v1());
                 });
 
 

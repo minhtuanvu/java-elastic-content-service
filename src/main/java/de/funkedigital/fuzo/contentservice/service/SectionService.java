@@ -12,7 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import reactor.core.publisher.Flux;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class SectionService {
@@ -27,7 +28,7 @@ public class SectionService {
         this.contentRepo = contentRepo;
     }
 
-    Flux<Content> handleEvent(Event event) {
+    List<Content> handleEvent(Event event) {
         LOGGER.info("Handling section event: {}", event);
         if (event.getActionType() == Event.ActionType.UPDATE) {
             try {
@@ -38,15 +39,15 @@ public class SectionService {
             }
         }
         LOGGER.warn("Section {} event was ignored", event.getActionType());
-        return Flux.empty();
+        return Collections.emptyList();
     }
 
-    private Flux<Content> updateSection(Section section) {
-        Flux<Content> result = contentRepo.updateSection(section);
+    private List<Content> updateSection(Section section) {
+        List<Content> result = contentRepo.updateSection(section);
         section.getSubSections()
                 .stream()
                 .map(this::updateSection)
-                .forEach(result::concatWith);
+                .forEach(result::addAll);
         return result;
     }
 
