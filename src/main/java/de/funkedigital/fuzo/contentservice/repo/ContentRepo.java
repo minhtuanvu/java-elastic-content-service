@@ -178,6 +178,7 @@ public class ContentRepo {
 
     private Tuple<String, RestStatus> updateSection(String id, Section section) {
         try {
+            LOGGER.info("Updating content id: {} to section: {}", id, section);
             return Tuple.tuple(id, restHighLevelClient.update(new UpdateRequest(CONTENT_INDEX, ID_FIELD, id)
                     .doc(getSectionDocMap(section))).status());
         } catch (IOException e) {
