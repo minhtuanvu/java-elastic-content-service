@@ -61,14 +61,12 @@ public class QueueController {
                 .forEach(tuple -> {
                     Publisher<Content> result = eventService.handleEvent(tuple.v2());
                     if (result instanceof Mono) {
-                        Mono<Content> contentMono = (Mono<Content>) result;
-                        contentMono.block();
+                        ((Mono<Content>) result).block();
                         amazonSQS.deleteMessage(url, tuple.v1());
                         LOGGER.info("Message removed from queue: {}", tuple.v1());
                     } else {
                         if (result instanceof Flux) {
-                            Flux<Content> contentFlux = (Flux<Content>) result;
-                            contentFlux.blockLast();
+                            ((Flux<Content>) result).blockLast();
                             amazonSQS.deleteMessage(url, tuple.v1());
                             LOGGER.info("Message removed from queue: {}", tuple.v1());
                         } else {
