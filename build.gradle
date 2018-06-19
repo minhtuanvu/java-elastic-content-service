@@ -4,9 +4,11 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1"
     }
 }
 
@@ -14,6 +16,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: "com.gorylenko.gradle-git-properties"
 
 group = 'de.funkedigital.fuzo'
 sourceCompatibility = 1.8
