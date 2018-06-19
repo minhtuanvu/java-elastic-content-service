@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import reactor.core.publisher.Flux;
@@ -32,10 +33,10 @@ public class TopListService {
         TopListResult topListResult = topListRepo
                 .getTopList();
         LOGGER.info("Top list result: {}", topListResult);
-        return contentRepo.findByIds(topListResult
-                .getTopListEntries()
-                .stream()
-                .map(TopListEntry::getArticleId)
-                .collect(Collectors.toSet()));
+
+        return Optional.ofNullable(topListResult.getTopListEntries())
+                .map(topListEntries -> contentRepo.findByIds(topListEntries.stream()
+                        .map(TopListEntry::getArticleId).collect(Collectors.toSet())))
+                .orElse(Flux.empty());
     }
 }
