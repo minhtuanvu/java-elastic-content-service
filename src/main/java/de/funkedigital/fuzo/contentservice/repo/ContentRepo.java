@@ -153,7 +153,7 @@ public class ContentRepo {
 
 
     public Flux<Content> updateSection(Section section) {
-        LOGGER.info("Updating section {}", section.getUniqueName());
+        LOGGER.info("Updating section {} ", section);
 
         return Flux.fromStream(() -> {
             try {

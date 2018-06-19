@@ -70,7 +70,6 @@ public class Section {
                 ", uniqueName='" + uniqueName + '\'' +
                 ", directoryName='" + directoryName + '\'' +
                 ", directoryPath='" + directoryPath + '\'' +
-                ", subSections=" + subSections +
                 '}';
     }
 }
