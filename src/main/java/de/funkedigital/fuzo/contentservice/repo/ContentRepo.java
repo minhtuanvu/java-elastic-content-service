@@ -75,6 +75,7 @@ public class ContentRepo {
     }
 
     public Mono<Content> findById(Long id) {
+        LOGGER.info("Fetching content id: {}", id);
         return Mono.create(sink -> restHighLevelClient
                 .getAsync(new GetRequest(CONTENT_INDEX, ID_FIELD, String.valueOf(id)),
                         new ActionListener<GetResponse>() {
