@@ -1,6 +1,0 @@
-version: '3'
-services:
-  wordpress:
-    image: 656201843059.dkr.ecr.eu-central-1.amazonaws.com/fuzo:${number}
-    ports:
-      - "80:80"

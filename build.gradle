@@ -27,6 +27,9 @@ repositories {
     mavenCentral()
     maven { url "https://repo.spring.io/snapshot" }
     maven { url "https://repo.spring.io/milestone" }
+    maven {
+        url 'https://dl.bintray.com/palantir/releases'
+    }
 }
 
 
@@ -60,6 +63,8 @@ dependencies {
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile 'org.assertj:assertj-core:3.9.1'
+
+    testCompile 'com.palantir.docker.compose:docker-compose-rule-junit4:0.31.1'
 }
 
 dependencyManagement {

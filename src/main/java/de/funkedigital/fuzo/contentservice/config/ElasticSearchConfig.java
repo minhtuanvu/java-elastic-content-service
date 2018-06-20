@@ -11,10 +11,11 @@ import org.springframework.context.annotation.Configuration;
 public class ElasticSearchConfig {
 
     @Bean
-    RestHighLevelClient restHighLevelClient(@Value("${elastic.host}") String host) {
+    RestHighLevelClient restHighLevelClient(@Value("${elastic.host}") String host,
+                                            @Value("${elastic.port}") Integer port) {
         return new RestHighLevelClient(
                 RestClient
-                        .builder(new HttpHost(host))
+                        .builder(new HttpHost(host, port))
                         .setRequestConfigCallback(config -> config
                                 .setConnectTimeout(50_000)
                                 .setConnectionRequestTimeout(50_000)

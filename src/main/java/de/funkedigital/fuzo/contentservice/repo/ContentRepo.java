@@ -138,7 +138,7 @@ public class ContentRepo {
                     .source(new SearchSourceBuilder()
                             .query(QueryBuilders.termsQuery("homeSection.sectionId",
                                     String.valueOf(section.getSectionId())))))
-                    .getHits().spliterator(), true)
+                    .getHits().spliterator(), false)
                     .map(SearchHit::getId)
                     .map(id -> updateSection(id, section))
                     .filter(Objects::nonNull)
