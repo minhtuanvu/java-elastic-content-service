@@ -1,7 +1,7 @@
 FROM openjdk:8-jdk-alpine as build-env
 WORKDIR /building/
 COPY ./ ./
-RUN ./gradlew clean check build
+RUN ./gradlew clean check build -x test
 
 FROM openjdk:8-jre-alpine
 RUN apk --no-cache add ca-certificates
