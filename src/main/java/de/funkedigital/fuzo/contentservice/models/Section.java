@@ -107,4 +107,16 @@ public class Section {
 
         return Objects.hash(sectionId, name, uniqueName, directoryName, directoryPath, state);
     }
+
+    @Override
+    public String toString() {
+        return "Section{" +
+                "sectionId=" + sectionId +
+                ", name='" + name + '\'' +
+                ", uniqueName='" + uniqueName + '\'' +
+                ", directoryName='" + directoryName + '\'' +
+                ", directoryPath='" + directoryPath + '\'' +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }
