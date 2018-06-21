@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import de.funkedigital.fuzo.contentservice.models.Content;
 import de.funkedigital.fuzo.contentservice.models.ContentSearchRequest;
 import de.funkedigital.fuzo.contentservice.models.Section;
+import de.funkedigital.fuzo.contentservice.models.StateFields;
 
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -19,6 +20,7 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.collect.Tuple;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
@@ -85,15 +87,17 @@ public class ContentRepo {
                         }));
     }
 
-    public Flux<String> search(ContentSearchRequest contentSearchRequest) {
-        return Flux.fromStream(() -> streamSearch(contentSearchRequest));
+    public Flux<String> search(ContentSearchRequest contentSearchRequest, StateFields extra) {
+        return Flux.fromStream(() -> streamSearch(contentSearchRequest, extra));
     }
 
-    private Stream<String> streamSearch(ContentSearchRequest contentSearchRequest) {
+    private Stream<String> streamSearch(ContentSearchRequest contentSearchRequest, StateFields extra) {
         try {
             return StreamSupport.stream(restHighLevelClient.search(new SearchRequest(CONTENT_INDEX)
                     .source(new SearchSourceBuilder()
-                            .query(QueryBuilders.termsQuery("homeSection.sectionId", contentSearchRequest.getHomeSections()))
+                            .query(
+                                    buildQuery(contentSearchRequest, extra)
+                            )
                             .from(contentSearchRequest.getOffset())
                             .size(contentSearchRequest.getLimit())
                             .fetchSource(includes, excludes)))
@@ -104,6 +108,13 @@ public class ContentRepo {
             LOGGER.error("Failed to search", e);
             return Stream.empty();
         }
+    }
+
+    private QueryBuilder buildQuery(ContentSearchRequest contentSearchRequest, StateFields stateFields) {
+        return QueryBuilders.boolQuery()
+                .must(QueryBuilders.termsQuery("homeSection.sectionId", contentSearchRequest.getHomeSections()))
+                .must(QueryBuilders.termsQuery("state", stateFields.getState()))
+                .must(QueryBuilders.termsQuery("homeSection.state", stateFields.getHomeSection().getState()));
     }
 
 

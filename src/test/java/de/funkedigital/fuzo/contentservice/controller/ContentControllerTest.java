@@ -15,6 +15,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoSink;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,6 +41,17 @@ public class ContentControllerTest {
 
         //When //Then
         webTestClient.get().uri("/contents/{id}", id).accept(MediaType.APPLICATION_JSON)
+                .exchange().expectBody(String.class).isEqualTo("{}");
+    }
+
+    @Test
+    public void shouldReturnEmptyOnNonExistentContent() throws InterruptedException {
+        //Given
+        Long id = 1L;
+        when(articleService.get(id)).thenReturn(Mono.create(MonoSink::success));
+
+        //When //Then
+        webTestClient.get().uri("/contents/{id}", id)
                 .exchange().expectBody(String.class).isEqualTo("{}");
     }
 

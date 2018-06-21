@@ -11,6 +11,7 @@ public class Section {
     private String uniqueName;
     private String directoryName;
     private String directoryPath;
+    private String state;
 
     @JsonProperty("subsections")
     private List<Section> subSections;
@@ -18,12 +19,13 @@ public class Section {
     public Section() {
     }
 
-    public Section(Long sectionId, String name, String uniqueName, String directoryName, String directoryPath, List<Section> subSections) {
+    public Section(Long sectionId, String name, String uniqueName, String directoryName, String directoryPath, String state, List<Section> subSections) {
         this.sectionId = sectionId;
         this.name = name;
         this.uniqueName = uniqueName;
         this.directoryName = directoryName;
         this.directoryPath = directoryPath;
+        this.state = state;
         this.subSections = subSections;
     }
 
@@ -75,15 +77,12 @@ public class Section {
         this.subSections = subSections;
     }
 
-    @Override
-    public String toString() {
-        return "Section{" +
-                "sectionId=" + sectionId +
-                ", name='" + name + '\'' +
-                ", uniqueName='" + uniqueName + '\'' +
-                ", directoryName='" + directoryName + '\'' +
-                ", directoryPath='" + directoryPath + '\'' +
-                '}';
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     @Override
@@ -99,12 +98,13 @@ public class Section {
                 Objects.equals(name, section.name) &&
                 Objects.equals(uniqueName, section.uniqueName) &&
                 Objects.equals(directoryName, section.directoryName) &&
-                Objects.equals(directoryPath, section.directoryPath);
+                Objects.equals(directoryPath, section.directoryPath) &&
+                Objects.equals(state, section.state);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(sectionId, name, uniqueName, directoryName, directoryPath);
+        return Objects.hash(sectionId, name, uniqueName, directoryName, directoryPath, state);
     }
 }

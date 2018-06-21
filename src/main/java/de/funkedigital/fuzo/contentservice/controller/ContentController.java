@@ -5,6 +5,7 @@ import de.funkedigital.fuzo.contentservice.service.ArticleService;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,8 +25,10 @@ public class ContentController {
 
     @Cacheable("contents")
     @GetMapping(value = "/contents/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<String> get(@PathVariable Long id) {
-        return articleService.get(id);
+    public Mono<ResponseEntity<String>> get(@PathVariable Long id) {
+
+        return articleService.get(id).map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 
     @GetMapping("/contents")

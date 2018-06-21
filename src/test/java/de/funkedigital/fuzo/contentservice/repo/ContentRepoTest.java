@@ -8,6 +8,7 @@ import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import de.funkedigital.fuzo.contentservice.models.Content;
 import de.funkedigital.fuzo.contentservice.models.ContentSearchRequest;
 import de.funkedigital.fuzo.contentservice.models.Section;
+import de.funkedigital.fuzo.contentservice.models.StateFields;
 
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -55,7 +56,7 @@ public class ContentRepoTest {
     @Autowired
     private ContentRepo contentRepo;
 
-    private final String body = "{\"key\" : \"value\", \"homeSection\" : { \"sectionId\" : \"123\" }}";
+    private final String body = "{\"key\" : \"value\", \"homeSection\" : { \"sectionId\" : \"123\", \"state\": \"published\" }, \"state\": \"published\"}";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -114,7 +115,7 @@ public class ContentRepoTest {
         contentSearchRequest.setHomeSections(new String[]{"123"});
 
         //When
-        Flux<String> result = contentRepo.search(contentSearchRequest);
+        Flux<String> result = contentRepo.search(contentSearchRequest, new StateFields("published", new StateFields("published", null)));
 
         //Then
         Thread.sleep(2000L);
@@ -140,7 +141,7 @@ public class ContentRepoTest {
 
     @Test
     public void shouldUpdateSectionSuccessfully() throws IOException, InterruptedException {
-        Section section = new Section(123L, "updated name", "updated unique name", "updated dir", "updated path", Collections.emptyList());
+        Section section = new Section(123L, "updated name", "updated unique name", "updated dir", "updated path", "published", Collections.emptyList());
         Thread.sleep(2000L);
         List<Content> result = contentRepo.updateSection(
                 section);

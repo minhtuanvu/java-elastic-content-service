@@ -1,12 +1,18 @@
 package de.funkedigital.fuzo.contentservice.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.funkedigital.fuzo.contentservice.models.Content;
 import de.funkedigital.fuzo.contentservice.models.ContentSearchRequest;
 import de.funkedigital.fuzo.contentservice.models.Event;
+import de.funkedigital.fuzo.contentservice.models.StateFields;
 import de.funkedigital.fuzo.contentservice.repo.ContentRepo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,30 +25,38 @@ import reactor.core.publisher.Mono;
 @Service
 public class ArticleService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleService.class);
+
     private final ContentRepo contentRepo;
-    private final SaveContentFunction saveContentFunction;
-    private final DeleteContentFunction deleteContentFunction;
+    private final ObjectMapper objectMapper;
     private final Map<Event.ActionType, Function<Event, List<Content>>> transformerActionMap = new HashMap<>();
+
+    private final StateFields stateFields = new StateFields("published", new StateFields("published"));
 
     ArticleService(ContentRepo contentRepo,
                    SaveContentFunction saveContentFunction,
-                   DeleteContentFunction deleteContentFunction) {
+                   DeleteContentFunction deleteContentFunction,
+                   ObjectMapper objectMapper) {
         this.contentRepo = contentRepo;
-        this.saveContentFunction = saveContentFunction;
-        this.deleteContentFunction = deleteContentFunction;
-        constructTransformerAction();
-    }
-
-    private void constructTransformerAction() {
         transformerActionMap.put(Event.ActionType.CREATE, saveContentFunction);
         transformerActionMap.put(Event.ActionType.UPDATE, saveContentFunction);
         transformerActionMap.put(Event.ActionType.DELETE, deleteContentFunction);
-
+        this.objectMapper = objectMapper;
     }
 
     public Mono<String> get(Long id) {
-        return contentRepo.findById(id).map(Content::getBody);
+        return contentRepo.findById(id).filter(this::checkState).map(Content::getBody);
     }
+
+    private boolean checkState(Content content) {
+        try {
+            return objectMapper.readValue(content.getBody(), StateFields.class).equals(stateFields);
+        } catch (IOException e) {
+            LOGGER.warn("Unable to parse content for state checking: {}", content.getId(), e);
+            return false;
+        }
+    }
+
 
     List<Content> handleEvent(Event event) {
         Event.ActionType actionType = event.getActionType();
@@ -54,7 +68,7 @@ public class ArticleService {
 
 
     public Flux<String> searchBy(ContentSearchRequest contentSearchRequest) {
-        return contentRepo.search(contentSearchRequest);
+        return contentRepo.search(contentSearchRequest, stateFields);
 
     }
 }
