@@ -25,6 +25,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -100,6 +102,7 @@ public class ContentRepo {
                             )
                             .from(contentSearchRequest.getOffset())
                             .size(contentSearchRequest.getLimit())
+                            .sort(new FieldSortBuilder("lastModified").order(SortOrder.DESC))
                             .fetchSource(includes, excludes)))
                     .getHits().spliterator(), false)
                     .map(SearchHit::getSourceAsString)
@@ -112,9 +115,9 @@ public class ContentRepo {
 
     private QueryBuilder buildQuery(ContentSearchRequest contentSearchRequest, StateFields stateFields) {
         return QueryBuilders.boolQuery()
-                .must(QueryBuilders.termsQuery("homeSection.sectionId", contentSearchRequest.getHomeSections()))
                 .must(QueryBuilders.termsQuery("state", stateFields.getState()))
-                .must(QueryBuilders.termsQuery("homeSection.state", stateFields.getHomeSection().getState()));
+                .must(QueryBuilders.termsQuery("homeSection.state", stateFields.getHomeSection().getState()))
+                ;
     }
 
 
