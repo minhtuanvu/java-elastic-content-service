@@ -24,24 +24,24 @@ public class ContentFetcher {
         while (processStartingAt(start)) {
             start += 1000;
         }
+        executorService.shutdown();
 
     }
 
     private static boolean processStartingAt(int i) {
         RestTemplate restTemplate = new RestTemplate();
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://uat-be:8983/solr/default_core/select?fl=objectid,publishdate,contenttype,state&fq=NOT%20contenttype:%22widget_ad%22&fq=NOT%20contenttype:%22widget_contentteaser%22&fq=NOT%20contenttype:%22widget_contentteaser24%22&fq=NOT%20contenttype:%22widget_xhtml%22&fq=publication:fuzo&fq=state:published&indent=on&q=*:*&rows=1000&sort=publishdate%20DESC&wt=json&start=" + i);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://prod-solr3:8983/solr/default_core/select?fl=objectid,publishdate,contenttype,state&fq=NOT%20contenttype:%22widget_ad%22&fq=NOT%20contenttype:%22widget_contentteaser%22&fq=NOT%20contenttype:%22widget_contentteaser24%22&fq=NOT%20contenttype:%22widget_xhtml%22&fq=publication:fuzo&fq=state:published&indent=on&q=*:*&rows=1000&sort=publishdate%20DESC&wt=json&start=" + i);
         UriComponents components = builder.build(true);
         URI uri = components.toUri();
         WebClient webClient = WebClient.create("http://localhost:8080/");
         JsonNode result = restTemplate.getForObject(uri, JsonNode.class);
         JsonNode docs = result.get("response").get("docs");
         Stream<CompletableFuture<Void>> futures = StreamSupport.stream(docs.spliterator(), false).map(jsonNode -> CompletableFuture.runAsync(() -> {
-            String jsonContent = restTemplate.getForObject("http://uat-fe1:8080/fuzo/template/framework/tools/article.v2.json.jsp?articleId={id}", String.class, jsonNode.get("objectid").asText());
+            String jsonContent = restTemplate.getForObject("http://149.221.203.112:8080/fuzo/template/framework/tools/article.v2.json.jsp?articleId={id}", String.class, jsonNode.get("objectid").asText());
             webClient.post().uri("/events").body(BodyInserters.fromObject(jsonContent)).header("Content-Type", "application/json").exchange().block();
         }, executorService));
 
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
-        executorService.shutdown();
         return docs != null;
 
     }

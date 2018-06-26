@@ -60,7 +60,6 @@ public class ArticleService {
 
     List<Content> handleEvent(Event event) {
         Event.ActionType actionType = event.getActionType();
-
         return Optional.ofNullable(transformerActionMap.get(actionType))
                 .map(m -> m.apply(event))
                 .orElseThrow(() -> new UnsupportedOperationException(actionType.toString()));
