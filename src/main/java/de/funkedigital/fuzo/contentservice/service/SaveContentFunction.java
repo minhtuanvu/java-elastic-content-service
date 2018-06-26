@@ -24,18 +24,27 @@ public class SaveContentFunction implements Function<Event, List<Content>> {
 
     private final ContentRepo contentRepo;
     private final ObjectMapper objectMapper;
+    private final UrlService urlService;
 
-    public SaveContentFunction(ContentRepo contentRepo, ObjectMapper objectMapper) {
+    public SaveContentFunction(ContentRepo contentRepo, ObjectMapper objectMapper, UrlService urlService) {
         this.contentRepo = contentRepo;
         this.objectMapper = objectMapper;
+        this.urlService = urlService;
     }
 
     @Override
     public List<Content> apply(Event event) {
-
         try {
-            return Collections.singletonList(contentRepo.save(new Content(event.getObjectId(),
-                    objectMapper.writeValueAsString(event.getPayload()))));
+            String articleUrl = urlService.buildDefaultUrl(event.getPayload());
+            event.getPayload().put("articleUrl", articleUrl);
+            return Collections.singletonList(
+                    contentRepo.save(
+                            new Content(
+                                    event.getObjectId(),
+                                    objectMapper.writeValueAsString(event.getPayload())
+                            )
+                    )
+            );
         } catch (IOException ex) {
             LOGGER.error("ERROR while transforming : ", ex);
             throw new RuntimeException(ex);

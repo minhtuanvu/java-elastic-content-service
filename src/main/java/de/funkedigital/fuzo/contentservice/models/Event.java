@@ -2,7 +2,7 @@ package de.funkedigital.fuzo.contentservice.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -17,7 +17,7 @@ public class Event {
     public Event(@NotNull ActionType actionType,
                  @NotNull DataType dataType,
                  @NotNull Long objectId,
-                 @NotNull JsonNode payload) {
+                 @NotNull ObjectNode payload) {
         this.actionType = actionType;
         this.dataType = dataType;
         this.objectId = objectId;
@@ -64,7 +64,7 @@ public class Event {
     private Long objectId;
 
     @NotNull
-    private JsonNode payload;
+    private ObjectNode payload;
 
     public ActionType getActionType() {
         return actionType;
@@ -82,11 +82,11 @@ public class Event {
         this.objectId = objectId;
     }
 
-    public JsonNode getPayload() {
+    public ObjectNode getPayload() {
         return payload;
     }
 
-    public void setPayload(JsonNode payload) {
+    public void setPayload(ObjectNode payload) {
         this.payload = payload;
     }
 
