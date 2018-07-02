@@ -1,7 +1,5 @@
-package de.funkedigital.fuzo.contentservice.config;
+package de.funkedigital.fuzo.sitemapservice.config;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -13,11 +11,11 @@ import org.springframework.web.context.WebApplicationContext;
 import java.net.MalformedURLException;
 
 @Configuration
-public class AwsConfig {
+public class AppConfig {
 
     @Bean
-    AmazonSQS amazonSQS(@Value("${region}") String region) {
-        return AmazonSQSClientBuilder.standard().withRegion(region).build();
+    @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
+    WebSitemapGenerator sitemapGenerator(@Value("${sitemap.base-url}") String baseUrl) throws MalformedURLException {
+        return new WebSitemapGenerator(baseUrl);
     }
-
 }

@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
@@ -12,9 +14,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCircuitBreaker
 @EnableScheduling
 @EnableCaching
+@ComponentScan("de.funkedigital.fuzo")
 public class ContentServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ContentServiceApplication.class, args);
+        ApplicationContext applicationContext = SpringApplication.run(ContentServiceApplication.class, args);
+
+        for (String name: applicationContext.getBeanDefinitionNames()) {
+            System.out.println(name);
+        }
     }
 }

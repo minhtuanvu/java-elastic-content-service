@@ -61,6 +61,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-cache'
 
+    // https://www.michael-bull.com/blog/2016/05/22/generating-sitemaps-with-spring-boot-and-sitemapgen4j
+    compile group: 'com.github.dfabulich', name: 'sitemapgen4j', version: '1.0.4'
+
     // https://mvnrepository.com/artifact/com.rometools/rome
     compile group: 'com.rometools', name: 'rome', version: '1.10.0'
 

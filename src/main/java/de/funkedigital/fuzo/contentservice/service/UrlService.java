@@ -1,8 +1,8 @@
 package de.funkedigital.fuzo.contentservice.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -10,14 +10,12 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 /**
- * Created By {kazi}
+ * Created By {akremin}
  */
 @Service
 public class UrlService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlService.class);
-
-    private final ObjectMapper objectMapper;
 
     private static final String REPLACE[][] = {
             {"[\340\341\342\343\345\346\u0101\u0103\u0105\u01FB\u01FD\u03AC\u03B1\u0430\u1EA1\u1EA3\u1EA5\u1EA7\u1EA9\u1EAB\u1EAD\u1EAF\u1EB1\u1EB3\u1EB5\u1EB7]", "a"},
@@ -56,10 +54,6 @@ public class UrlService {
             {"[\u0174\u1E80\u1E82\u1E84]", "W"}, {"[\u0176\u0178\u1EF2\u1EF4\u1EF6\u1EF8]", "Y"}, {"[\u0179\u017B\u017D]", "Z"},
             {"\304", "Ae"}, {"\326", "Oe"}, {"\334", "Ue"}, {"\344", "ae"}, {"\366", "oe"}, {"\374", "ue"}, {"\337", "ss"}, {"'", ""}};
 
-    public UrlService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
     public String buildDefaultUrl(JsonNode article) throws IOException {
 
         StringBuilder url = new StringBuilder();
@@ -77,22 +71,20 @@ public class UrlService {
 
     private String getArticleOverridingHeadline(JsonNode article) {
 
-        String title = "";
-
-        try {
-            String headline = article.get("fields").get("overriding_headline").asText();
-            if (headline == null || "".equals(headline)) {
-                headline = article.get("fields").get("title").asText();
-            }
-            title = headline;
-        } catch (Exception e) {
-            try {
-                title = article.get("title").asText();
-            } catch (Exception ex) {
-                LOGGER.debug("failed to get field title for url", e);
+        String title = null;
+        if (article.get("fields") != null) {
+            JsonNode overridingHeadline = article.get("fields").get("overriding_headline");
+            title = overridingHeadline != null ? overridingHeadline.asText() : null;
+            if (StringUtils.isBlank(title)) {
+                JsonNode fieldTitle = article.get("fields").get("title");
+                title = fieldTitle != null ? fieldTitle.asText() : null;
             }
         }
+        if (StringUtils.isBlank(title)) {
+            title = article.get("title").asText();
+        }
         return title;
+
     }
 
     private static String makeUrlString(String str, char delim) {
