@@ -1,7 +1,6 @@
 package de.funkedigital.fuzo.contentservice.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,19 +70,17 @@ public class UrlService {
 
     private String getArticleOverridingHeadline(JsonNode article) {
 
-        String title = null;
+        JsonNode title = null;
         if (article.get("fields") != null) {
-            JsonNode overridingHeadline = article.get("fields").get("overriding_headline");
-            title = overridingHeadline != null ? overridingHeadline.asText() : null;
-            if (StringUtils.isBlank(title)) {
-                JsonNode fieldTitle = article.get("fields").get("title");
-                title = fieldTitle != null ? fieldTitle.asText() : null;
+            title = article.get("fields").get("overriding_headline");
+            if (title == null || StringUtils.isBlank(title.asText())) {
+                title = article.get("fields").get("title");
             }
         }
-        if (StringUtils.isBlank(title)) {
-            title = article.get("title").asText();
+        if (title == null ||StringUtils.isBlank(title.asText())) {
+            title = article.get("title");
         }
-        return title;
+        return title == null ? null : title.asText();
 
     }
 
