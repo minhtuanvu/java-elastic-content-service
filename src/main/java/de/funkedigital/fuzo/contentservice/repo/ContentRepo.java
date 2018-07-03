@@ -184,6 +184,7 @@ public class ContentRepo {
                         "name", section.getName(),
                         "uniqueName", section.getUniqueName(),
                         "directoryName", section.getDirectoryName(),
+                        "state", section.getState(),
                         "directoryPath", section.getDirectoryPath()
                 ));
     }
