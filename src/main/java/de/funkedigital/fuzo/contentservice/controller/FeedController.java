@@ -4,6 +4,7 @@ import com.rometools.rome.feed.atom.Feed;
 
 import de.funkedigital.fuzo.contentservice.service.FeedService;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,8 +18,9 @@ public class FeedController {
         this.feedService = feedService;
     }
 
+    @Cacheable
     @GetMapping(value = "/feeds", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
-    Feed feed() {
+    public Feed feed() {
         return feedService.getFeed();
     }
 
