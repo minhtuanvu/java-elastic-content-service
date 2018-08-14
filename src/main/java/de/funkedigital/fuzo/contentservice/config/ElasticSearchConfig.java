@@ -21,6 +21,6 @@ public class ElasticSearchConfig {
                                 .setConnectionRequestTimeout(50_000)
                                 .setSocketTimeout(50_000)
                         )
-                        .setMaxRetryTimeoutMillis(5_000));
+                        .setMaxRetryTimeoutMillis(50_000));
     }
 }

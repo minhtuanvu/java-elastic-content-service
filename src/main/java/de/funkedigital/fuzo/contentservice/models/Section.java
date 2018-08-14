@@ -1,6 +1,7 @@
 package de.funkedigital.fuzo.contentservice.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,10 +17,18 @@ public class Section {
     @JsonProperty("subsections")
     private List<Section> subSections;
 
+    private JsonNode parameter;
+
     public Section() {
     }
 
-    public Section(Long sectionId, String name, String uniqueName, String directoryName, String directoryPath, String state, List<Section> subSections) {
+    public Section(Long sectionId, String name,
+                   String uniqueName,
+                   String directoryName,
+                   String directoryPath,
+                   String state,
+                   List<Section> subSections,
+                   JsonNode parameter) {
         this.sectionId = sectionId;
         this.name = name;
         this.uniqueName = uniqueName;
@@ -27,6 +36,7 @@ public class Section {
         this.directoryPath = directoryPath;
         this.state = state;
         this.subSections = subSections;
+        this.parameter = parameter;
     }
 
     public Long getSectionId() {
@@ -85,6 +95,14 @@ public class Section {
         this.state = state;
     }
 
+    public JsonNode getParameter() {
+        return parameter;
+    }
+
+    public void setParameter(JsonNode parameter) {
+        this.parameter = parameter;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -99,13 +117,15 @@ public class Section {
                 Objects.equals(uniqueName, section.uniqueName) &&
                 Objects.equals(directoryName, section.directoryName) &&
                 Objects.equals(directoryPath, section.directoryPath) &&
-                Objects.equals(state, section.state);
+                Objects.equals(state, section.state) &&
+                Objects.equals(subSections, section.subSections) &&
+                Objects.equals(parameter, section.parameter);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(sectionId, name, uniqueName, directoryName, directoryPath, state);
+        return Objects.hash(sectionId, name, uniqueName, directoryName, directoryPath, state, subSections, parameter);
     }
 
     @Override
@@ -117,6 +137,8 @@ public class Section {
                 ", directoryName='" + directoryName + '\'' +
                 ", directoryPath='" + directoryPath + '\'' +
                 ", state='" + state + '\'' +
+                ", subSections=" + subSections +
+                ", parameter=" + parameter +
                 '}';
     }
 }

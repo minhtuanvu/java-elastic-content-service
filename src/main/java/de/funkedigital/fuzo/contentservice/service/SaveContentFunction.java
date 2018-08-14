@@ -1,6 +1,8 @@
 package de.funkedigital.fuzo.contentservice.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import de.funkedigital.fuzo.contentservice.models.Content;
 import de.funkedigital.fuzo.contentservice.models.Event;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
@@ -41,7 +44,7 @@ public class SaveContentFunction implements Function<Event, List<Content>> {
                     contentRepo.save(
                             new Content(
                                     event.getObjectId(),
-                                    objectMapper.writeValueAsString(event.getPayload())
+                                    objectMapper.writeValueAsString(handlePayload(event.getPayload()))
                             )
                     )
             );
@@ -50,5 +53,21 @@ public class SaveContentFunction implements Function<Event, List<Content>> {
             throw new RuntimeException(ex);
         }
 
+    }
+
+    private Object handlePayload(ObjectNode payload) {
+        JsonNode parameters = payload.get("homeSection").get("parameter");
+        if (parameters == null) {
+            return payload;
+        }
+        ((ObjectNode) payload.get("homeSection")).remove("parameter");
+        ObjectNode newParameters = objectMapper.createObjectNode();
+        Iterator<String> fieldNames = parameters.fieldNames();
+        while (fieldNames.hasNext()) {
+            String fieldName = fieldNames.next();
+            newParameters.set(fieldName.replaceAll("\\.", "_"), parameters.get(fieldName));
+        }
+        ((ObjectNode) payload.get("homeSection")).set("parameter", newParameters);
+        return payload;
     }
 }

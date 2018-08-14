@@ -142,10 +142,10 @@ public class ContentRepoTest {
 
     @Test
     public void shouldUpdateSectionSuccessfully() throws IOException, InterruptedException {
-        Section section = new Section(123L, "updated name", "updated unique name", "updated dir", "updated path", "published", Collections.emptyList());
-        Thread.sleep(2000L);
+        Section section = new Section(123L, "updated name", "updated unique name", "updated dir", "updated path", "published", Collections.emptyList(), objectMapper.createObjectNode());
         List<Content> result = contentRepo.updateSection(
                 section);
+        Thread.sleep(2000L);
         assertThat(result).extracting(Content::getId).containsExactly(1L);
 
         JsonNode contentBody = objectMapper.readTree(requireNonNull(contentRepo.findById(1L).block()).getBody());

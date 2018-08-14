@@ -1,6 +1,6 @@
 package de.funkedigital.fuzo.contentservice.repo;
 
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.funkedigital.fuzo.contentservice.models.Content;
 import de.funkedigital.fuzo.contentservice.models.ContentSearchRequest;
@@ -53,11 +53,14 @@ public class ContentRepo {
     private static final String ID_FIELD = "id";
 
     private final RestHighLevelClient restHighLevelClient;
+    private final ObjectMapper objectMapper;
     private final String[] includes = new String[]{};
     private final String[] excludes = new String[]{"fields.body"};
 
-    ContentRepo(RestHighLevelClient restHighLevelClient) {
+    ContentRepo(RestHighLevelClient restHighLevelClient,
+                ObjectMapper objectMapper) {
         this.restHighLevelClient = restHighLevelClient;
+        this.objectMapper = objectMapper;
     }
 
     public Content save(Content content) throws IOException {
@@ -179,13 +182,6 @@ public class ContentRepo {
     }
 
     private Map<String, Map<String, String>> getSectionDocMap(Section section) {
-        return ImmutableMap.of("homeSection",
-                ImmutableMap.of(
-                        "name", section.getName(),
-                        "uniqueName", section.getUniqueName(),
-                        "directoryName", section.getDirectoryName(),
-                        "state", section.getState(),
-                        "directoryPath", section.getDirectoryPath()
-                ));
+        return objectMapper.convertValue(section, Map.class);
     }
 }
